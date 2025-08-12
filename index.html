@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>КАЛКУЛАТОР ЗА ОТСТЪПКА</title>
+<style>
+  :root{{ 
+    --bg:#f6f8fb;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent:#0ea5a4;
+    --accent-dark:#0b8f8e;
+    --glass: rgba(255,255,255,0.7);
+    font-family: Inter, Roboto, Arial, sans-serif;
+  }}
+  body{{ 
+    margin:0;
+    padding:24px;
+    background: linear-gradient(180deg,#f3f7fb 0%, #f6fbff 100%);
+    color:#0f172a;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }}
+  header{{ 
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:18px;
+  }}
+  .logo {{ 
+    width:64px;
+    height:64px;
+    background:linear-gradient(135deg,var(--accent),#60a5fa);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-weight:700;
+    box-shadow:0 6px 18px rgba(14,165,164,0.18);
+    flex:0 0 64px;
+  }}
+  h1{{ 
+    margin:0;
+    font-size:20px;
+    letter-spacing:0.2px;
+  }}
+  p.lead{{ 
+    margin:4px 0 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }}
+  .app {{ 
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:20px;
+    align-items:start;
+    margin-top:12px;
+  }}
+  .products {{ 
+    background:var(--glass);
+    border-radius:14px;
+    padding:14px;
+    box-shadow: 0 6px 20px rgba(12,18,36,0.04);
+    min-height:200px;
+  }}
+  .grid {{ 
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:12px;
+  }}
+  .card {{ 
+    background: var(--card);
+    border-radius:12px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    box-shadow: 0 4px 14px rgba(12,18,36,0.04);
+  }}
+  .prod-name{{ 
+    font-weight:600;
+    font-size:14px;
+    line-height:1.2;
+  }}
+  .prod-price{{ 
+    color:var(--muted);
+    font-size:13px;
+  }}
+  .controls{{ 
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-top:6px;
+  }}
+  .qty{{ 
+    width:72px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid #e6e9ef;
+    font-size:14px;
+    text-align:center;
+  }}
+  .line-total{{ 
+    margin-left:auto;
+    font-weight:700;
+    font-size:14px;
+  }}
+  .sidebar{{ 
+    background:var(--card);
+    border-radius:14px;
+    padding:16px;
+    box-shadow: 0 6px 24px rgba(12,18,36,0.06);
+    position:sticky;
+    top:20px;
+    height:max-content;
+  }}
+  .sidebar h2{{ 
+    margin:0 0 8px 0;
+    font-size:16px;
+  }}
+  .row{{ 
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:10px 0;
+  }}
+  .big{{ 
+    font-size:20px;
+    font-weight:800;
+  }}
+  .muted{{ 
+    color:var(--muted);
+    font-size:13px;
+  }}
+  input[type="number"].discount{{ 
+    width:120px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid #e6e9ef;
+    font-size:14px;
+    text-align:right;
+  }}
+  .hint{{ 
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+  }}
+  footer.note{{ 
+    margin-top:14px;
+    color:var(--muted);
+    font-size:13px;
+  }}
+  .clear-btn {{ 
+    width:100%;
+    margin-top:12px;
+    padding:10px;
+    font-size:14px;
+    font-weight:600;
+    background:var(--accent);
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background 0.2s;
+  }}
+  .clear-btn:hover {{ 
+    background:var(--accent-dark);
+  }}
+  @media (max-width:980px){{ 
+    .app{{ grid-template-columns: 1fr; }}
+    .sidebar{{ position:relative; top:auto; }}
+  }}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0ea5a4">
+
+</head>
+<body>
+
+<header>
+  <div class="logo">К</div>
+  <div>
+    <h1>КАЛКУЛАТОР ЗА ОТСТЪПКА</h1>
+    <p class="lead">Въведи количество за продуктите — виж финалната цена с отстъпка в реално време.</p>
+  </div>
+</header>
+
+<div class="app">
+  <section class="products" aria-label="Продукти">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <strong>Продукти</strong>
+      <div class="muted">Цена / брой</div>
+    </div>
+    <div id="productGrid" class="grid"></div>
+  </section>
+
+  <aside class="sidebar" aria-label="Общо">
+    <h2>Обобщение</h2>
+    <div class="row">
+      <div class="muted">Обща сума (без отстъпка)</div>
+      <div id="subtotal" class="big">0.00 лв</div>
+    </div>
+    <div class="row">
+      <div style="display:flex;flex-direction:column;">
+        <label class="muted" for="discount">Процент отстъпка</label>
+        <input id="discount" class="discount" type="number" min="0" max="100" step="0.01" value="0" />
+      </div>
+      <div style="text-align:right;">
+        <div class="muted">Отстъпка (лв)</div>
+        <div id="discountAmount" class="big">0.00 лв</div>
+      </div>
+    </div>
+    <div style="height:1px;background:#f1f5f9;border-radius:1px;margin:12px 0"></div>
+    <div class="row">
+      <div class="muted">Крайна сума</div>
+      <div id="total" class="big">0.00 лв</div>
+    </div>
+    <button id="clearAll" class="clear-btn">Изчисти</button>
+    <div class="hint">Всички цени са в лева. Промените се при всяко въвеждане.</div>
+  </aside>
+</div>
+
+<script>
+const products = [{"id": 1, "name": "Алекса", "price": 8.65}, {"id": 2, "name": "Алекса Лайт", "price": 8.65}, {"id": 3, "name": "Алекса Форте капс", "price": 9.05}, {"id": 4, "name": "Алекса Форте сироп", "price": 9.05}, {"id": 5, "name": "Алергамин", "price": 14.45}, {"id": 6, "name": "Амбрела капс х 30", "price": 16.25}, {"id": 7, "name": "Андрографис Магнавир капс", "price": 15.25}, {"id": 8, "name": "Андрографис Магнавир сироп", "price": 12.65}, {"id": 9, "name": "Антацид капс х 30", "price": 9.75}, {"id": 10, "name": "Биотон капс", "price": 14.0}, {"id": 11, "name": "Биотон сироп", "price": 14.0}, {"id": 12, "name": "БиФерро  КИДС 10 ampoules 5 ml 2,2 mg/ml, 100 g", "price": 14.55}, {"id": 13, "name": "БиФерро 10 ampoules 5 ml 3 mg/ml, 100 g", "price": 16.05}, {"id": 14, "name": "Бонурел", "price": 16.25}, {"id": 15, "name": "Братинон", "price": 7.75}, {"id": 16, "name": "Вит С ампули х 10", "price": 9.0}, {"id": 17, "name": "Вит С ампули лимон х 10", "price": 10.0}, {"id": 18, "name": "Витамин А", "price": 4.45}, {"id": 19, "name": "Витамин Д caps x 20", "price": 5.95}, {"id": 20, "name": "Витамин Д 3 1000IU tabl  x 30", "price": 6.45}, {"id": 21, "name": "Витамин Е", "price": 6.45}, {"id": 22, "name": "Геримар", "price": 4.95}, {"id": 23, "name": "Дегамит капс х 30", "price": 10.45}, {"id": 24, "name": "Дегамит S капс х 10", "price": 7.75}, {"id": 25, "name": "Зопидорм", "price": 14.0}, {"id": 26, "name": "Иберидис Гастро капс х 30", "price": 18.25}, {"id": 27, "name": "Имувир Ц Ретард", "price": 11.6}, {"id": 28, "name": "Имунайз", "price": 15.45}, {"id": 29, "name": "Инфламист", "price": 9.65}, {"id": 30, "name": "Калций табл х30", "price": 5.85}, {"id": 31, "name": "Калций + Д3 табл х30", "price": 6.75}, {"id": 32, "name": "Колаген Протект", "price": 12.9}, {"id": 33, "name": "МагнаСлим", "price": 17.95}, {"id": 34, "name": "МагнаБеар", "price": 33.25}, {"id": 35, "name": "МагнаБеар Кидс", "price": 17.25}, {"id": 36, "name": "МагнаБиотик Meta x30", "price": 30.1}, {"id": 37, "name": "МагнаБиотик Meta x60", "price": 42.1}, {"id": 38, "name": "MagnaVits Junior for girls", "price": 13.95}, {"id": 39, "name": "MagnaVits Junior for boys", "price": 13.95}, {"id": 40, "name": "MagnaVits IMMUNO", "price": 13.95}, {"id": 41, "name": "MagnaVits teenagers for boys", "price": 13.95}, {"id": 42, "name": "MagnaVits teenagers for girls", "price": 13.95}, {"id": 43, "name": "MagnaVits during pregnancy & breast-feeding", "price": 13.95}, {"id": 44, "name": "MagnaVits for women", "price": 13.95}, {"id": 45, "name": "MagnaVits for women 50+", "price": 13.95}, {"id": 46, "name": "MagnaVits for men", "price": 13.95}, {"id": 47, "name": "MagnaVits for men 50+", "price": 13.95}, {"id": 48, "name": "Магназайм сироп", "price": 18.45}, {"id": 49, "name": "Магнасепт джиндифил", "price": 6.6}, {"id": 50, "name": "Магнасепт евкалипт", "price": 6.6}, {"id": 51, "name": "Магнасепт мед и лимон", "price": 6.6}, {"id": 52, "name": "Магнасепт череша", "price": 6.6}, {"id": 53, "name": "Магнасепт ягода/деца", "price": 6.6}, {"id": 54, "name": "Магнетон Б", "price": 11.7}, {"id": 55, "name": "Мелатон", "price": 10.35}, {"id": 56, "name": "Мелатон Кидс сироп 125 мл", "price": 15.75}, {"id": 57, "name": "Омегa 3 + Vit E 30 capsules", "price": 11.3}, {"id": 58, "name": "Омега 3 + Vit E 60 capsules", "price": 12.4}, {"id": 59, "name": "Омега 3 MAX + Vit E  30 capsules", "price": 13.5}, {"id": 60, "name": "Омега 3 Max + Vit E 60 capsules", "price": 15.1}, {"id": 61, "name": "Простамин x 30", "price": 14.65}, {"id": 62, "name": "Простамин x 60", "price": 22.75}, {"id": 63, "name": "Репахеп", "price": 13.65}, {"id": 64, "name": "Селеган ПРО капс x 60", "price": 23.25}, {"id": 65, "name": "Селеган 30 капс", "price": 12.95}, {"id": 66, "name": "Селеган 60 капс", "price": 19.25}, {"id": 67, "name": "СинусМагна капс", "price": 15.25}, {"id": 68, "name": "СинусМагна сироп", "price": 12.65}, {"id": 69, "name": "Скор!", "price": 7.95}, {"id": 70, "name": "Тестостерон комплекс капс х 60", "price": 18.45}, {"id": 71, "name": "Тусидрен", "price": 10.8}, {"id": 72, "name": "Тусидрен сироп 125 мл", "price": 10.8}, {"id": 73, "name": "H2OFF", "price": 16.95}, {"id": 74, "name": "Фристик", "price": 14.55}, {"id": 75, "name": "ФолиоМет", "price": 14.45}, {"id": 76, "name": "Хеърфул Про мъже капс х30", "price": 23.45}, {"id": 77, "name": "Хеърфул Про жени капс х30", "price": 23.45}];
+
+const grid = document.getElementById('productGrid');
+const subtotalEl = document.getElementById('subtotal');
+const discountInput = document.getElementById('discount');
+const discountAmountEl = document.getElementById('discountAmount');
+const totalEl = document.getElementById('total');
+const clearBtn = document.getElementById('clearAll');
+
+function formatMoney(n){
+  return n.toLocaleString('bg-BG',{minimumFractionDigits:2, maximumFractionDigits:2}) + " лв";
+}
+
+function createCard(p){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = p.id;
+  card.innerHTML = `
+    <div class="prod-name">\${p.name}</div>
+    <div class="prod-price">\${formatMoney(p.price)}</div>
+    <div class="controls">
+      <input type="number" class="qty" min="0" step="1" value="0" aria-label="Количество за \${p.name}" />
+      <div class="line-total">\${formatMoney(0)}</div>
+    </div>
+  `;
+  card.querySelector('.qty').addEventListener('input', () => {
+    let qty = parseInt(card.querySelector('.qty').value) || 0;
+    if(qty < 0) qty = 0;
+    card.querySelector('.qty').value = qty;
+    card.querySelector('.line-total').textContent = formatMoney(qty * p.price);
+    recalc();
+  });
+  return card;
+}
+
+function recalc(){
+  let sum = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const id = Number(card.dataset.id);
+    const p = products.find(x => x.id === id);
+    const q = parseInt(card.querySelector('.qty').value) || 0;
+    sum += q * p.price;
+  });
+  subtotalEl.textContent = formatMoney(sum);
+  let discPerc = Number(discountInput.value) || 0;
+  if(discPerc < 0) discPerc = 0;
+  if(discPerc > 100) discPerc = 100;
+  discountInput.value = discPerc;
+  const discAmount = sum * discPerc / 100;
+  discountAmountEl.textContent = formatMoney(discAmount);
+  totalEl.textContent = formatMoney(sum - discAmount);
+}
+
+products.forEach(p => grid.appendChild(createCard(p)));
+discountInput.addEventListener('input', recalc);
+clearBtn.addEventListener('click', () => {
+  document.querySelectorAll('.qty').forEach(q => q.value = 0);
+  discountInput.value = 0;
+  document.querySelectorAll('.line-total').forEach(l => l.textContent = formatMoney(0));
+  recalc();
+});
+recalc();
+</script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  });
+}
+</script>
+
+</body>
+</html>
